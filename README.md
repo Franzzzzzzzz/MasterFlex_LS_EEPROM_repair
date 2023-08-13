@@ -1,7 +1,11 @@
 This repository contains instructions and necessary files to repair a MasterFlex L/S pump model 07551-20 when an EEPROM failure prevent its from starting (errors 7, 8, 9).
+
 The cost of repair from the manufacturer of this type of error is several thousand dollars, while the cost of repair of the method indicated here is a few dollars, several hours of work, and some tools (soldering iron etc.). You will need some soldering skills and programming knowledge. 
+
 **No garanty is provided regarding the repair detailed below. It may make your pump permanently inoperable, dangerous, may result in lost of data, and certainly voids any warranty. You have been warned!**
+
 Please read the codes provided before compiling them and using them. They most certainly require some changes and adjustements.
+
 The process indicated here can probably be applied similarly to other pump models, but it would certainly require some changes. Basically, this repository is mainly a recording for myself on how to do the repair. 
 
 ## Overview of the process
@@ -17,13 +21,18 @@ The process indicated here can probably be applied similarly to other pump model
 
 ### Reading / writing the EEPROM 93LC66B
 A raspberry pi is used to read and write the EEPROM. The program 93LC66B.cpp handles the reading and writing. It always read the full content of the chip, but optionally writes a hex file before. Make sure you activate or deactivate the writing in the code as needed (using the `if (0)` or `if (1)` in the source for reading only or writing and reading, respectively. 
+
 The defaults pins for the RPI are GPIO6 for CS, GPIO13 for CLK, GPIO19 for DI and GPIO26 for CI. These are conveniently aligned on the RPI3B. 
+
 The program can be compiled simply with a `g++ -o 93LC66B 93LC66B.cpp`. It needs to run as `sudo` (to access the GPIO pins). 
+
 Use the 3.3V power from the RPI to power the EEPROM. 
+
 The RPI must be completely disconnected from the pump PCB when powering the pump with the EEPROM and the jump wired (step 4), or the pump and RPI conflict and weird stuff happens. 
 
 ### Preparing the ROM data to write to the EEPROM
 If you feel extremely lucky, you could just try and write the file `ManufacturedWorking.bin` on the EEPROM using the program above, and try powering the pump. I would consider it unlikely to work well: the EEPROM seem to contain some calibration data which may differ from the one I have. This is also why the pump does not work on blank EEPROM, even after doing the factory reset (which does write some data on the EEPROM, but cannot rewrite the calibrtion that it does not have anymore).
+
 My approach has been to combine a fresh dump from the factory reset, and the part of the original EEPROM that seem to contain calibration. To do all that:
 1. Extract the original EEPROM
 2. Wire it somehow to the RPI
@@ -40,20 +49,6 @@ My approach has been to combine a fresh dump from the factory reset, and the par
 10. Write this new ROM data using the program `93LC99B` with the writing unable now. 
 11. Unplug the RPI. Power on the pump. Hopefully, it works now. 
 12. If all looks good, desolder the jump wires and put everything back together. 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
